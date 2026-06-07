@@ -13,7 +13,7 @@ class PassportManageScreen extends GetView<PassportManageController> {
         padding: const EdgeInsets.all(16.0),
         child: Obx(() {
           if (controller.isLoading.value &&
-              controller.passportImage.value == null) {
+              controller.passportImageBytes.value == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -46,13 +46,13 @@ class PassportManageScreen extends GetView<PassportManageController> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 16),
-                  controller.passportImage.value == null
+                  controller.passportImageBytes.value == null
                       ? const SizedBox(
                           height: 160,
                           child: Center(
                               child: Text('No passport photo selected.')),
                         )
-                      : Image.file(controller.passportImage.value!,
+                      : Image.memory(controller.passportImageBytes.value!,
                           height: 180),
                   const SizedBox(height: 16),
                   Row(
@@ -74,7 +74,7 @@ class PassportManageScreen extends GetView<PassportManageController> {
                       ),
                     ],
                   ),
-                  if (controller.passportImage.value != null) ...[
+                  if (controller.passportImageBytes.value != null) ...[
                     const SizedBox(height: 12),
                     TextButton(
                       onPressed: controller.removeImage,

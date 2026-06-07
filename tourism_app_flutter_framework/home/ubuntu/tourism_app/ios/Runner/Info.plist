@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan your passport photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photo library access to upload your passport photo.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs your location to show nearby attractions and transport stations.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs your location to show nearby attractions and transport stations.</string>
 </dict>
 </plist>

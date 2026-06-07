@@ -1,29 +1,40 @@
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
+import 'package:tourism_app/core/utils/app_logger.dart';
 
 class SignupStepperController extends GetxController {
   final RxInt currentStep = 0.obs;
   final RxBool isLoading = false.obs;
-  final Rx<File?> passportImage = Rx<File?>(null);
-  final RxString verificationMessage = 'Please wait for verification.'.obs;
+
+  // Bytes instead of File — works on web and mobile
+  final Rx<Uint8List?> passportImageBytes = Rx<Uint8List?>(null);
+
+  final RxString verificationMessage =
+      'Please wait for verification.'.obs;
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  @override
+  void onClose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
 
   void onStepContinue() async {
     if (currentStep.value == 0) {
       await registerUser();
     } else if (currentStep.value == 1) {
       await uploadPassport();
-    } else if (currentStep.value == 2) {
-      // Done, maybe navigate or show message
     }
   }
 
@@ -32,25 +43,36 @@ class SignupStepperController extends GetxController {
   }
 
   Future<void> registerUser() async {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      Get.snackbar('Validation', 'Please fill in all fields.');
+      return;
+    }
+
     isLoading.value = true;
     try {
-      UserCredential userCredential =
+      final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        email: email,
+        password: password,
       );
       await FirebaseFirestore.instance
           .collection('accounts')
-          .doc(userCredential.user!.uid)
+          .doc(credential.user!.uid)
           .set({
-        'name': nameController.text.trim(),
-        'email': emailController.text.trim(),
+        'name': name,
+        'email': email,
         'status': 'pending_passport',
-        'credits': 150,
+        'credits': 0,
+        'behaviorStatus': 'good_standing',
         'createdAt': FieldValue.serverTimestamp(),
       });
       currentStep.value++;
     } catch (e) {
+      appLogger.e('Registration error', error: e);
       Get.snackbar('Error', 'Failed to register: $e');
     } finally {
       isLoading.value = false;
@@ -58,25 +80,33 @@ class SignupStepperController extends GetxController {
   }
 
   Future<void> pickPassportImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      passportImage.value = File(pickedFile.path);
+    final picked =
+        await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85);
+    if (picked != null) {
+      passportImageBytes.value = await picked.readAsBytes();
     }
   }
 
   Future<void> uploadPassport() async {
-    if (passportImage.value == null) {
+    final bytes = passportImageBytes.value;
+    if (bytes == null) {
       Get.snackbar('Error', 'Please select a passport image.');
       return;
     }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     isLoading.value = true;
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      final ref =
-          FirebaseStorage.instance.ref().child('passports/${user!.uid}.jpg');
-      await ref.putFile(passportImage.value!);
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('passports/${user.uid}.jpg');
+
+      // putData works on both web and mobile
+      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
       final url = await ref.getDownloadURL();
+
       await FirebaseFirestore.instance
           .collection('accounts')
           .doc(user.uid)
@@ -85,11 +115,13 @@ class SignupStepperController extends GetxController {
         'status': 'under_verification',
         'passportUploadedAt': FieldValue.serverTimestamp(),
       });
+
       verificationMessage.value =
           'Your account is under verification. Please wait for approval.';
       currentStep.value++;
       Get.offAllNamed(Routes.UNDER_VERIFICATION);
     } catch (e) {
+      appLogger.e('Passport upload error', error: e);
       Get.snackbar('Error', 'Failed to upload passport: $e');
     } finally {
       isLoading.value = false;

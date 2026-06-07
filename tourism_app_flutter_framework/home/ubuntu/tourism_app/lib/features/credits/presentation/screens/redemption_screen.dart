@@ -25,33 +25,42 @@ class RedemptionScreen extends GetView<CreditController> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              // Placeholder for list of redemption offers
-              child: ListView(
-                children: [
-                  ListTile(
-                    title: const Text('10% Discount on Souvenirs'),
-                    subtitle: const Text('Cost: 50 Credits'),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement redemption logic
-                        controller.redeemCredits('souvenir_10');
-                      },
-                      child: const Text('Redeem'),
+              child: ListView.builder(
+                itemCount: controller.redemptionOffers.length,
+                itemBuilder: (context, index) {
+                  final offer = controller.redemptionOffers[index];
+                  final id = offer['id'] as String;
+                  final title = offer['title'] as String;
+                  final description = offer['description'] as String;
+                  final cost = offer['cost'] as int;
+                  final icon = offer['icon'] as String;
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: Text(icon, style: const TextStyle(fontSize: 28)),
+                      title: Text(title,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(description),
+                          Text('Cost: $cost Credits',
+                              style: const TextStyle(
+                                  color: Colors.indigo,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      trailing: Obx(() => ElevatedButton(
+                            onPressed: controller.currentBalance.value >= cost
+                                ? () => controller.redeemCredits(id, cost)
+                                : null,
+                            child: const Text('Redeem'),
+                          )),
                     ),
-                  ),
-                  ListTile(
-                    title: const Text('Free Museum Ticket'),
-                    subtitle: const Text('Cost: 100 Credits'),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement redemption logic
-                        controller.redeemCredits('museum_free');
-                      },
-                      child: const Text('Redeem'),
-                    ),
-                  ),
-                  // Add more offers here
-                ],
+                  );
+                },
               ),
             ),
           ],
@@ -60,4 +69,3 @@ class RedemptionScreen extends GetView<CreditController> {
     );
   }
 }
-

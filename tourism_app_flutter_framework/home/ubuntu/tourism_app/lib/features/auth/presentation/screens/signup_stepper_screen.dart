@@ -43,9 +43,9 @@ class SignupStepperScreen extends GetView<SignupStepperController> {
             isActive: controller.currentStep.value >= 1,
             content: Column(
               children: [
-                controller.passportImage.value == null
+                controller.passportImageBytes.value == null
                   ? const Text('No image selected.')
-                  : Image.file(controller.passportImage.value!, height: 150),
+                  : Image.memory(controller.passportImageBytes.value!, height: 150),
                 ElevatedButton(
                   onPressed: controller.pickPassportImage,
                   child: const Text('Upload Passport Photo'),

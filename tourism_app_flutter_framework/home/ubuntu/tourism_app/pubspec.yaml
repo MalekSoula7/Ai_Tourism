@@ -28,7 +28,9 @@ dependencies:
   dio: ^5.8.0+1
   google_mlkit_text_recognition: ^0.15.0
   firebase_storage: ^12.4.6
-  # Add other dependencies as needed, e.g., for AI model integration (tflite_flutter?), database (sqflite?)
+  qr_flutter: ^4.1.0
+  logger: ^2.0.2
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
