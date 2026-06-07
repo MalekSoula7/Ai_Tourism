@@ -1,0 +1,52 @@
+name: tourism_app
+description: An AI-powered tourism app.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0' # Adjust based on your Flutter SDK version
+
+dependencies:
+  get: ^4.6.5
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  http: ^1.1.0 # For making HTTP requests
+  google_maps_flutter: ^2.5.0 # Or flutter_map depending on preference
+  google_maps_flutter_web: ^0.5.2
+  shared_preferences: ^2.2.2 # For simple local storage
+  camera: ^0.11.1 # For passport scanning
+  image_picker: ^1.0.4 # For picking images (alternative for scanning)
+  image_picker_for_web: ^3.0.4
+  permission_handler: ^12.0.0+1 # For handling permissions (location, camera)
+  geolocator: ^14.0.1 # For location services
+  firebase_database: ^11.3.6
+  firebase_auth: ^5.5.4
+  firebase_core: ^3.13.1
+  cloud_firestore: ^5.6.8
+  dio: ^5.8.0+1
+  google_mlkit_text_recognition: ^0.15.0
+  firebase_storage: ^12.4.6
+  # Add other dependencies as needed, e.g., for AI model integration (tflite_flutter?), database (sqflite?)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+  #   - assets/fonts/
+  #   - assets/translations/
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+

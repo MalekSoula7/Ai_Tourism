@@ -1,0 +1,15 @@
+to be done 
+    nrigel fazet l sign up stepper twalli ysigni w baad yuploadi l passport  
+    edit the app that after creating an account it's the first step whene creating it after that the tourist should scan his passport to gain full access to the app
+    search about the map thing
+    nzid l forgot password controller w screen mteeha 
+
+    
+done:
+    nrigel l controller mtee l sign up stepper 
+    nrigel l profile_controller
+    collect assets 
+    generate a token when loging in and session  
+    activit l auth fel firebase
+    nrigel l firebase wel API mteeha
+

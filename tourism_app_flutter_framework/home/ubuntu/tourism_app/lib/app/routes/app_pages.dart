@@ -1,0 +1,115 @@
+import 'package:get/get.dart';
+import 'package:tourism_app/app/middleware/auth_middleware.dart';
+import 'package:tourism_app/features/auth/presentation/bindings/auth_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/auth/presentation/controllers/signup_stepper_controller.dart';
+import 'package:tourism_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:tourism_app/features/auth/presentation/screens/under_verification_screen.dart';
+import 'package:tourism_app/features/auth/presentation/screens/signup_screen.dart';
+import 'package:tourism_app/features/auth/presentation/screens/rejected_screen.dart';
+import 'package:tourism_app/features/credits/presentation/bindings/credit_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/credits/presentation/screens/credit_history_screen.dart';
+import 'package:tourism_app/features/credits/presentation/screens/redemption_screen.dart';
+import 'package:tourism_app/features/home/presentation/bindings/home_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/home/presentation/screens/home_screen.dart';
+import 'package:tourism_app/features/map/presentation/bindings/map_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/map/presentation/screens/map_screen.dart';
+import 'package:tourism_app/features/passport/presentation/bindings/passport_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/passport/presentation/screens/passport_manage_screen.dart';
+import 'package:tourism_app/features/passport/presentation/screens/passport_scan_screen.dart';
+import 'package:tourism_app/features/profile/presentation/bindings/profile_binding.dart'; // Placeholder binding
+import 'package:tourism_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:tourism_app/features/auth/presentation/screens/signup_stepper_screen.dart';
+import 'package:tourism_app/features/auth/presentation/screens/forgot_password_screen.dart';
+
+part 'app_routes.dart';
+
+class AppPages {
+  static const INITIAL = Routes.LOGIN; // Start with login for now
+
+  static final routes = [
+    GetPage(
+      name: Routes.LOGIN,
+      page: () => LoginScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.UNDER_VERIFICATION,
+      page: () => UnderVerificationScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.REJECTED,
+      page: () => const RejectedScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.SIGNUP,
+      page: () => SignupScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.FORGOT_PASSWORD,
+      page: () => ForgotPasswordScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.HOME,
+      page: () => const HomeScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: Routes.MAP,
+      page: () => MapScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: MapBinding(),
+    ),
+    GetPage(
+      name: Routes.PASSPORT_SCAN,
+      page: () => const PassportScanScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: PassportBinding(),
+    ),
+    GetPage(
+      name: Routes.PASSPORT_MANAGE,
+      page: () => const PassportManageScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: PassportBinding(),
+    ),
+    GetPage(
+      name: Routes.CREDIT_HISTORY,
+      page: () => const CreditHistoryScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: CreditBinding(),
+    ),
+    GetPage(
+      name: Routes.REDEMPTION,
+      page: () => const RedemptionScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: CreditBinding(),
+    ),
+    GetPage(
+      name: Routes.PROFILE,
+      page: () => ProfileScreen(),
+      middlewares: [AuthMiddleware()],
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: Routes.SIGNUP_STEPPER,
+      page: () => SignupStepperScreen(),
+      binding: BindingsBuilder(() {
+        Get.put(SignupStepperController());
+      }),
+    ),
+    // Add more routes as needed
+    // GetPage(
+    //   name: Routes.FORGOT_PASSWORD
+    //   page: () => FORGOT_PASSWORD(),
+    //   binding: FORGOT_PASSWORD(),)
+    // Add other routes here
+  ];
+}
