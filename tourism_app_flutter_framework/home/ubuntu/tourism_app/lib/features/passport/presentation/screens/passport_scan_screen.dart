@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:tourism_app/features/passport/presentation/controllers/passport_scan_controller.dart';
@@ -26,9 +27,12 @@ class PassportScanScreen extends GetView<PassportScanController> {
             Positioned(
               bottom: 50,
               child: FloatingActionButton(
-                onPressed: controller.isScanning.value ? null : controller.startScan,
+                onPressed:
+                    controller.isScanning.value ? null : controller.startScan,
                 child: Obx(() => Icon(
-                      controller.isScanning.value ? Icons.stop : Icons.camera_alt,
+                      controller.isScanning.value
+                          ? Icons.stop
+                          : Icons.camera_alt,
                     )),
               ),
             ),
@@ -53,7 +57,7 @@ class ScanOverlayWidget extends StatelessWidget {
           height: 150,
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.greenAccent,
+              color: AppColors.lemon,
               width: 3,
             ),
             borderRadius: BorderRadius.circular(16),
@@ -64,4 +68,3 @@ class ScanOverlayWidget extends StatelessWidget {
     );
   }
 }
-

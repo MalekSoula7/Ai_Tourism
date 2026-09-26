@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:tourism_app/data/models/place_model.dart';
 import 'package:tourism_app/features/home/presentation/controllers/home_controller.dart';
 import 'package:tourism_app/features/places/presentation/controllers/place_controller.dart';
@@ -37,185 +39,318 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showMoreSheet() {
+    final items = <(IconData, String, String, Color)>[
+      (
+        Icons.document_scanner_outlined,
+        'Passport',
+        Routes.PASSPORT_MANAGE,
+        AppColors.aegean
+      ),
+      (Icons.history, 'Credit History', Routes.CREDIT_HISTORY, AppColors.lemon),
+      (
+        Icons.event_outlined,
+        'My Reservations',
+        Routes.RESERVATIONS,
+        AppColors.seafoam
+      ),
+      (
+        Icons.flag_outlined,
+        'Report Behavior',
+        Routes.SUBMIT_REPORT,
+        AppColors.bougainvillea
+      ),
+      (
+        Icons.admin_panel_settings_outlined,
+        'Admin Dashboard',
+        Routes.ADMIN_DASHBOARD,
+        AppColors.olive
+      ),
+    ];
     Get.bottomSheet(
       SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListTile(
-                leading: const Icon(Icons.document_scanner),
-                title: const Text('Passport'),
-                onTap: () {
-                  Get.back();
-                  Get.toNamed(Routes.PASSPORT_MANAGE);
-                },
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 8),
+                child: SectionTitle('More'),
               ),
-              ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('Credit History'),
-                onTap: () {
-                  Get.back();
-                  Get.toNamed(Routes.CREDIT_HISTORY);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('My Reservations'),
-                onTap: () {
-                  Get.back();
-                  Get.toNamed(Routes.RESERVATIONS);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.flag),
-                title: const Text('Report Behavior'),
-                onTap: () {
-                  Get.back();
-                  Get.toNamed(Routes.SUBMIT_REPORT);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings),
-                title: const Text('Admin Dashboard'),
-                onTap: () {
-                  Get.back();
-                  Get.toNamed(Routes.ADMIN_DASHBOARD);
-                },
-              ),
+              for (final (icon, label, route, color) in items)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  title: Text(label),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Get.back();
+                    Get.toNamed(route);
+                  },
+                ),
             ],
           ),
         ),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI Nomad'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () => Get.toNamed(Routes.PROFILE),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => controller.logout(),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _HeroHeader(controller: controller)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const SectionTitle('Explore'),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    _QuickAction(
+                      icon: Icons.place_outlined,
+                      label: 'Places',
+                      color: AppColors.terracotta,
+                      onTap: () => Get.toNamed(Routes.PLACES_LIST),
+                    ),
+                    _QuickAction(
+                      icon: Icons.directions_boat_outlined,
+                      label: 'Transport',
+                      color: AppColors.azure,
+                      onTap: () => Get.toNamed(Routes.TRANSPORT),
+                    ),
+                    _QuickAction(
+                      icon: Icons.event_outlined,
+                      label: 'Bookings',
+                      color: AppColors.seafoam,
+                      onTap: () => Get.toNamed(Routes.RESERVATIONS),
+                    ),
+                    _QuickAction(
+                      icon: Icons.map_outlined,
+                      label: 'Map',
+                      color: AppColors.olive,
+                      onTap: () => Get.toNamed(Routes.MAP),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                SectionTitle(
+                  'Top recommendations',
+                  trailing: TextButton(
+                    onPressed: () => Get.toNamed(Routes.PLACES_LIST),
+                    child: const Text('See all'),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Obx(() {
+                  if (controller.recommendedPlaces.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: controller.recommendedPlaces
+                        .map((p) => _RecommendationCard(place: p))
+                        .toList(),
+                  );
+                }),
+                const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    'Fair winds & calm seas',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                      fontFamily: 'serif',
+                    ),
+                  ),
+                ),
+              ]),
+            ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome & credits header
-            Obx(() => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      controller.welcomeMessage.value,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 20),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${controller.userCredits.value} Credits',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(width: 16),
-                        _BehaviorBadge(status: controller.behaviorStatus.value),
-                      ],
-                    ),
-                  ],
-                )),
-            const SizedBox(height: 24),
-
-            // Quick actions
-            _SectionHeader(title: 'Quick Actions'),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                _QuickAction(
-                  icon: Icons.place,
-                  label: 'Places',
-                  color: Colors.blue,
-                  onTap: () => Get.toNamed(Routes.PLACES_LIST),
-                ),
-                _QuickAction(
-                  icon: Icons.train,
-                  label: 'Transport',
-                  color: Colors.indigo,
-                  onTap: () => Get.toNamed(Routes.TRANSPORT),
-                ),
-                _QuickAction(
-                  icon: Icons.calendar_today,
-                  label: 'Reservations',
-                  color: Colors.teal,
-                  onTap: () => Get.toNamed(Routes.RESERVATIONS),
-                ),
-                _QuickAction(
-                  icon: Icons.map,
-                  label: 'Map',
-                  color: Colors.green,
-                  onTap: () => Get.toNamed(Routes.MAP),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Recommendations
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _SectionHeader(title: 'Top Recommendations'),
-                TextButton(
-                  onPressed: () => Get.toNamed(Routes.PLACES_LIST),
-                  child: const Text('See All'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Obx(() {
-              if (controller.recommendedPlaces.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              return Column(
-                children: controller.recommendedPlaces
-                    .map((p) => _RecommendationCard(place: p))
-                    .toList(),
-              );
-            }),
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onTap,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.map_outlined),
+                activeIcon: Icon(Icons.map),
+                label: 'Map'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.place_outlined),
+                activeIcon: Icon(Icons.place),
+                label: 'Places'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.directions_boat_outlined),
+                activeIcon: Icon(Icons.directions_boat),
+                label: 'Transport'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.more_horiz), label: 'More'),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTap,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
-          BottomNavigationBarItem(icon: Icon(Icons.place), label: 'Places'),
-          BottomNavigationBarItem(icon: Icon(Icons.train), label: 'Transport'),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+    );
+  }
+}
+
+/// Photo header with a sea gradient and a wave-shaped bottom edge.
+class _HeroHeader extends StatelessWidget {
+  final HomeController controller;
+  const _HeroHeader({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ClipPath(
+      clipper: WaveClipper(),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/elafonissi-beach-crete-greece-WRLDBEACH0421-50fd96fe8e5e45448d154ae43b38b855.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.aegeanDark.withValues(alpha: 0.55),
+                    AppColors.aegean.withValues(alpha: 0.85),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 12, 56),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.sailing,
+                          color: AppColors.lemon, size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        'AI Nomad',
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(color: Colors.white, letterSpacing: 1),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.person_outline,
+                            color: Colors.white),
+                        onPressed: () => Get.toNamed(Routes.PROFILE),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.logout, color: Colors.white),
+                        onPressed: () => controller.logout(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Obx(() => Text(
+                        controller.welcomeMessage.value,
+                        style: theme.textTheme.headlineMedium
+                            ?.copyWith(color: Colors.white),
+                      )),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Where will the coast take you today?',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: Colors.white.withValues(alpha: 0.85)),
+                  ),
+                  const SizedBox(height: 18),
+                  Obx(() => Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          _GlassChip(
+                            icon: Icons.wb_sunny_rounded,
+                            iconColor: AppColors.lemon,
+                            label: '${controller.userCredits.value} Credits',
+                          ),
+                          _BehaviorBadge(
+                              status: controller.behaviorStatus.value),
+                        ],
+                      )),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GlassChip extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  const _GlassChip({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: iconColor),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );
@@ -232,46 +367,25 @@ class _BehaviorBadge extends StatelessWidget {
     IconData icon;
     switch (status) {
       case 'warning':
-        color = Colors.orange;
+        color = AppColors.lemon;
         icon = Icons.warning_amber;
         break;
       case 'sanctioned':
-        color = Colors.red;
+        color = AppColors.terracottaLight;
         icon = Icons.block;
         break;
       case 'suspended':
-        color = Colors.red[900]!;
+        color = AppColors.bougainvilleaLight;
         icon = Icons.gavel;
         break;
       default:
-        color = Colors.green;
-        icon = Icons.verified_user;
+        color = const Color(0xFFBFE3C0);
+        icon = Icons.verified_user_outlined;
     }
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 4),
-        Text(
-          status.replaceAll('_', ' ').capitalize!,
-          style: TextStyle(color: color, fontSize: 13),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(context)
-          .textTheme
-          .titleLarge
-          ?.copyWith(fontWeight: FontWeight.bold),
+    return _GlassChip(
+      icon: icon,
+      iconColor: color,
+      label: status.replaceAll('_', ' ').capitalize!,
     );
   }
 }
@@ -293,20 +407,31 @@ class _QuickAction extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.13),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: color.withValues(alpha: 0.25)),
+                ),
+                child: Icon(icon, color: color, size: 26),
               ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 6),
-            Text(label, style: const TextStyle(fontSize: 11)),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -319,61 +444,72 @@ class _RecommendationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        onTap: () {
-          if (Get.isRegistered<PlaceController>()) {
-            Get.find<PlaceController>().selectPlace(place);
-          }
-          Get.toNamed(Routes.PLACE_DETAIL);
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.blue[50],
-                  borderRadius: BorderRadius.circular(8),
+    final theme = Theme.of(context);
+    final accent = AppColors.forCategory(place.category);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            if (Get.isRegistered<PlaceController>()) {
+              Get.find<PlaceController>().selectPlace(place);
+            }
+            Get.toNamed(Routes.PLACE_DETAIL);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        accent.withValues(alpha: 0.9),
+                        accent.withValues(alpha: 0.6)
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.place, color: Colors.white, size: 30),
                 ),
-                child: Icon(Icons.place, color: Colors.blue[700], size: 32),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(place.name, style: theme.textTheme.titleMedium),
+                      const SizedBox(height: 4),
+                      StatusPill(label: place.category, color: accent),
+                      const SizedBox(height: 6),
+                      Text(
+                        place.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
                   children: [
+                    const Icon(Icons.star_rounded,
+                        color: AppColors.lemon, size: 20),
                     Text(
-                      place.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      place.category,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
-                    Text(
-                      place.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                      place.popularityScore.toStringAsFixed(1),
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                children: [
-                  Icon(Icons.star, color: Colors.amber, size: 16),
-                  Text(
-                    place.popularityScore.toStringAsFixed(1),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

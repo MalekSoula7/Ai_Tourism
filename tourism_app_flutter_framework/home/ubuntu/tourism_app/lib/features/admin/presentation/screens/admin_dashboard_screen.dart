@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/data/models/account_model.dart';
 import 'package:tourism_app/data/models/behavior_report_model.dart';
@@ -56,8 +58,8 @@ class _PassportTab extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: controller.pendingAccounts.length,
-        itemBuilder: (ctx, i) =>
-            _PassportCard(account: controller.pendingAccounts[i], controller: controller),
+        itemBuilder: (ctx, i) => _PassportCard(
+            account: controller.pendingAccounts[i], controller: controller),
       );
     });
   }
@@ -77,8 +79,10 @@ class _PassportCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(account.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Text(account.email, style: TextStyle(color: Colors.grey[600])),
+            Text(account.name,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(account.email, style: TextStyle(color: AppColors.driftwood)),
             if (account.passportNumber != null)
               Text('Passport: ${account.passportNumber}'),
             if (account.passportExpiryDate != null)
@@ -87,10 +91,13 @@ class _PassportCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ElevatedButton.icon(
-                  onPressed: () => Get.snackbar('Info', 'Open passport image in browser'),
+                  onPressed: () =>
+                      Get.snackbar('Info', 'Open passport image in browser'),
                   icon: const Icon(Icons.image),
                   label: const Text('View Passport Image'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[300]),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.sand,
+                      foregroundColor: AppColors.ink),
                 ),
               ),
             const SizedBox(height: 8),
@@ -101,7 +108,8 @@ class _PassportCard extends StatelessWidget {
                     onPressed: () => controller.approvePassport(account.uid),
                     icon: const Icon(Icons.check),
                     label: const Text('Approve'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.olive),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -110,7 +118,8 @@ class _PassportCard extends StatelessWidget {
                     onPressed: () => _showRejectDialog(context, account.uid),
                     icon: const Icon(Icons.close),
                     label: const Text('Reject'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.bougainvillea),
                   ),
                 ),
               ],
@@ -133,13 +142,15 @@ class _PassportCard extends StatelessWidget {
           maxLines: 3,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               controller.rejectPassport(uid, reasonController.text.trim());
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.bougainvillea),
             child: const Text('Reject'),
           ),
         ],
@@ -161,8 +172,8 @@ class _ReportsTab extends StatelessWidget {
       return ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: controller.pendingReports.length,
-        itemBuilder: (ctx, i) =>
-            _ReportCard(report: controller.pendingReports[i], controller: controller),
+        itemBuilder: (ctx, i) => _ReportCard(
+            report: controller.pendingReports[i], controller: controller),
       );
     });
   }
@@ -182,14 +193,12 @@ class _ReportCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Chip(
-              label: Text(report.category),
-              backgroundColor: Colors.orange[100],
-            ),
+            StatusPill(label: report.category, color: AppColors.terracotta),
             const SizedBox(height: 4),
             Text(report.description),
             Text('Reported user: ${report.reportedUserId}',
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                style:
+                    const TextStyle(fontSize: 12, color: AppColors.driftwood)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -198,7 +207,8 @@ class _ReportCard extends StatelessWidget {
                     onPressed: () => _showApproveDialog(context, report),
                     icon: const Icon(Icons.gavel),
                     label: const Text('Apply Penalty'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.bougainvillea),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -207,7 +217,8 @@ class _ReportCard extends StatelessWidget {
                     onPressed: () => controller.dismissReport(report),
                     icon: const Icon(Icons.check),
                     label: const Text('Dismiss'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.olive),
                   ),
                 ),
               ],
@@ -242,13 +253,16 @@ class _ReportCard extends StatelessWidget {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(ctx);
                 controller.approveReport(report, penalty);
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.bougainvillea),
               child: const Text('Apply'),
             ),
           ],

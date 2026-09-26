@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:tourism_app/data/models/place_model.dart';
 import 'package:tourism_app/features/places/presentation/controllers/place_controller.dart';
 
@@ -28,10 +30,11 @@ class PlacesListScreen extends GetView<PlaceController> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (controller.filteredPlaces.isEmpty) {
-                return const Center(child: Text('No places found'));
+                return const EmptyState(
+                    icon: Icons.travel_explore, message: 'No places found');
               }
               return ListView.builder(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 itemCount: controller.filteredPlaces.length,
                 itemBuilder: (ctx, i) =>
                     _PlaceCard(place: controller.filteredPlaces[i]),
@@ -52,10 +55,10 @@ class _CategoryFilter extends StatelessWidget {
   Widget build(BuildContext context) {
     final categories = ['All', ...PlaceCategory.all];
     return SizedBox(
-      height: 44,
+      height: 52,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: categories.length,
         itemBuilder: (ctx, i) {
           final cat = categories[i];
@@ -81,88 +84,82 @@ class _PlaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<PlaceController>();
     final isOpen = controller.isOpenNow(place);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          controller.selectPlace(place);
-          Get.toNamed(Routes.PLACE_DETAIL);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      place.name,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isOpen ? Colors.green[100] : Colors.red[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      isOpen ? 'Open' : 'Closed',
-                      style: TextStyle(
-                        color: isOpen ? Colors.green[800] : Colors.red[800],
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Chip(
-                label: Text(place.category),
-                backgroundColor: Colors.blue[50],
-                padding: EdgeInsets.zero,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                place.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(place.city, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                  const Spacer(),
-                  if (place.ticketRequired)
-                    Row(
+    final theme = Theme.of(context);
+    final accent = AppColors.forCategory(place.category);
+    final muted = theme.colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            controller.selectPlace(place);
+            Get.toNamed(Routes.PLACE_DETAIL);
+          },
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(width: 5, color: accent),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.confirmation_number, size: 14, color: Colors.orange[700]),
-                        const SizedBox(width: 4),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(place.name,
+                                  style: theme.textTheme.titleMedium),
+                            ),
+                            StatusPill(
+                              label: isOpen ? 'Open' : 'Closed',
+                              color: isOpen
+                                  ? AppColors.olive
+                                  : AppColors.bougainvillea,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        StatusPill(label: place.category, color: accent),
+                        const SizedBox(height: 8),
                         Text(
-                          '¥${place.ticketPrice.toInt()}',
-                          style: TextStyle(color: Colors.orange[700], fontSize: 13),
+                          place.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(color: muted),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Icon(Icons.location_on_outlined,
+                                size: 15, color: muted),
+                            const SizedBox(width: 4),
+                            Text(place.city,
+                                style: TextStyle(color: muted, fontSize: 13)),
+                            const Spacer(),
+                            if (place.ticketRequired)
+                              StatusPill(
+                                icon: Icons.confirmation_number_outlined,
+                                label: '¥${place.ticketPrice.toInt()}',
+                                color: AppColors.terracotta,
+                              )
+                            else
+                              const StatusPill(
+                                icon: Icons.check_circle_outline,
+                                label: 'Free',
+                                color: AppColors.olive,
+                              ),
+                          ],
                         ),
                       ],
-                    )
-                  else
-                    Row(
-                      children: [
-                        Icon(Icons.check_circle, size: 14, color: Colors.green[600]),
-                        const SizedBox(width: 4),
-                        Text('Free', style: TextStyle(color: Colors.green[600], fontSize: 13)),
-                      ],
                     ),
-                ],
-              ),
-            ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

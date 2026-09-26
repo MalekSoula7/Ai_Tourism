@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/data/models/behavior_report_model.dart';
 import 'package:tourism_app/features/reports/presentation/controllers/report_controller.dart';
@@ -17,7 +18,7 @@ class SubmitReportScreen extends GetView<ReportController> {
           children: [
             const Text(
               'Help us maintain a safe and respectful environment for everyone.',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: AppColors.driftwood),
             ),
             const SizedBox(height: 24),
             const Text('Reported User ID',
@@ -38,12 +39,14 @@ class SubmitReportScreen extends GetView<ReportController> {
                   value: controller.selectedCategory.value.isEmpty
                       ? null
                       : controller.selectedCategory.value,
-                  decoration: const InputDecoration(border: OutlineInputBorder()),
+                  decoration:
+                      const InputDecoration(border: OutlineInputBorder()),
                   hint: const Text('Select a category'),
                   items: ReportCategory.all
                       .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                       .toList(),
-                  onChanged: (val) => controller.selectedCategory.value = val ?? '',
+                  onChanged: (val) =>
+                      controller.selectedCategory.value = val ?? '',
                 )),
             const SizedBox(height: 20),
             const Text('Description',
@@ -75,7 +78,7 @@ class SubmitReportScreen extends GetView<ReportController> {
                         : 'Submit Report'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: Colors.red[700],
+                      backgroundColor: AppColors.bougainvillea,
                     ),
                   ),
                 )),

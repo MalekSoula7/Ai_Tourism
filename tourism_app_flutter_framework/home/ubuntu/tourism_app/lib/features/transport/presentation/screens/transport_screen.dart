@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
 import 'package:tourism_app/data/models/transport_station_model.dart';
@@ -43,13 +45,15 @@ class _StationsTab extends StatelessWidget {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.stations.isEmpty) {
-        return const Center(child: Text('No stations available'));
+        return const EmptyState(
+            icon: Icons.directions_boat_outlined,
+            message: 'No stations available');
       }
       return ListView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         itemCount: controller.stations.length,
-        itemBuilder: (ctx, i) =>
-            _StationCard(station: controller.stations[i], controller: controller),
+        itemBuilder: (ctx, i) => _StationCard(
+            station: controller.stations[i], controller: controller),
       );
     });
   }
@@ -76,8 +80,16 @@ class _StationCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(_typeIcon(station.type), color: Colors.blue),
-                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.azure.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child:
+                        Icon(_typeIcon(station.type), color: AppColors.azure),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       station.name,
@@ -85,35 +97,32 @@ class _StationCard extends StatelessWidget {
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  Chip(
-                    label: Text(station.type),
-                    backgroundColor: Colors.blue[50],
-                    padding: EdgeInsets.zero,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                  StatusPill(label: station.type, color: AppColors.azure),
                 ],
               ),
               const SizedBox(height: 6),
               Wrap(
-                spacing: 4,
+                spacing: 6,
+                runSpacing: 6,
                 children: station.lines
-                    .map((l) => Chip(
-                          label: Text(l, style: const TextStyle(fontSize: 11)),
-                          backgroundColor: Colors.grey[200],
-                          padding: EdgeInsets.zero,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ))
+                    .map((l) => StatusPill(label: l, color: AppColors.seafoam))
                     .toList(),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                  Icon(Icons.location_on, size: 14, color: AppColors.driftwood),
                   const SizedBox(width: 4),
-                  Text(station.city, style: TextStyle(color: Colors.grey[600])),
+                  Text(station.city,
+                      style: TextStyle(color: AppColors.driftwood)),
                   const Spacer(),
-                  const Text('Buy Ticket →',
-                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500)),
+                  const Text('Buy ticket',
+                      style: TextStyle(
+                          color: AppColors.terracotta,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward,
+                      size: 16, color: AppColors.terracotta),
                 ],
               ),
             ],
@@ -153,15 +162,15 @@ class _TicketsTab extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.confirmation_number, size: 64, color: Colors.grey),
-              SizedBox(height: 16),
-              Text('No tickets yet', style: TextStyle(color: Colors.grey)),
+              EmptyState(
+                  icon: Icons.confirmation_number_outlined,
+                  message: 'No tickets yet'),
             ],
           ),
         );
       }
       return ListView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         itemCount: controller.userTickets.length,
         itemBuilder: (ctx, i) => _TicketCard(ticket: controller.userTickets[i]),
       );
@@ -188,18 +197,19 @@ class _TicketCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     ticket.ticketType,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Chip(
-                  label: Text(isValid ? 'Valid' : 'Expired'),
-                  backgroundColor: isValid ? Colors.green[100] : Colors.red[100],
+                StatusPill(
+                  label: isValid ? 'Valid' : 'Expired',
+                  color: isValid ? AppColors.olive : AppColors.bougainvillea,
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text('Valid until: ${_formatDt(ticket.validUntil)}',
-                style: TextStyle(color: Colors.grey[700])),
+                style: TextStyle(color: AppColors.driftwood)),
             const SizedBox(height: 8),
             InkWell(
               onTap: () => _showQrCode(context, ticket.qrCodeData),
@@ -208,7 +218,7 @@ class _TicketCard extends StatelessWidget {
                   const Icon(Icons.qr_code_2, size: 40),
                   const SizedBox(width: 8),
                   const Text('Tap to show QR code',
-                      style: TextStyle(color: Colors.blue)),
+                      style: TextStyle(color: AppColors.aegean)),
                 ],
               ),
             ),
@@ -232,11 +242,13 @@ class _TicketCard extends StatelessWidget {
           children: [
             const Icon(Icons.qr_code_2, size: 120),
             const SizedBox(height: 8),
-            Text(data, style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+            Text(data,
+                style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
         ],
       ),
     );

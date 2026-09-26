@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
 import 'package:tourism_app/data/models/credit_transaction_model.dart';
@@ -46,7 +47,8 @@ class CreditHistoryScreen extends GetView<CreditController> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (controller.transactions.isEmpty) {
-                  return const Center(child: Text('No transaction history yet.'));
+                  return const Center(
+                      child: Text('No transaction history yet.'));
                 }
                 return ListView.builder(
                   itemCount: controller.transactions.length,
@@ -71,7 +73,7 @@ class _TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPositive = tx.amount >= 0;
-    final color = isPositive ? Colors.green : Colors.red;
+    final color = isPositive ? AppColors.olive : AppColors.bougainvillea;
     final dateStr =
         '${tx.createdAt.year}-${tx.createdAt.month.toString().padLeft(2, '0')}-${tx.createdAt.day.toString().padLeft(2, '0')}';
 
@@ -84,7 +86,8 @@ class _TransactionTile extends StatelessWidget {
       subtitle: Text(dateStr),
       trailing: Text(
         '${tx.amount > 0 ? '+' : ''}${tx.amount}',
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+        style:
+            TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
       ),
     );
   }
