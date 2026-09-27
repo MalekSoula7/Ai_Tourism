@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:tourism_app/core/services/crowd_predictor_service.dart';
 import 'package:tourism_app/features/places/presentation/controllers/place_controller.dart';
 
@@ -11,47 +13,81 @@ class PlaceDetailScreen extends GetView<PlaceController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final place = controller.selectedPlace.value;
-      if (place == null) return const Scaffold(body: Center(child: Text('No place selected')));
+      if (place == null)
+        return const Scaffold(body: Center(child: Text('No place selected')));
 
       return Scaffold(
-        appBar: AppBar(title: Text(place.name)),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                color: Colors.blue[100],
-                child: Center(
-                  child: Icon(
-                    _categoryIcon(place.category),
-                    size: 80,
-                    color: Colors.blue[700],
+              ClipPath(
+                clipper: WaveClipper(),
+                child: Container(
+                  height: 260,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.forCategory(place.category),
+                        _deepen(AppColors.forCategory(place.category)),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.18),
+                        border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.5)),
+                      ),
+                      child: Icon(
+                        _categoryIcon(place.category),
+                        size: 56,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Text(place.name,
+                        style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
                       children: [
-                        Chip(
-                          label: Text(place.category),
-                          backgroundColor: Colors.blue[50],
+                        StatusPill(
+                          label: place.category,
+                          color: AppColors.forCategory(place.category),
                         ),
-                        const SizedBox(width: 8),
                         if (place.ticketRequired)
-                          Chip(
-                            label: Text('¥${place.ticketPrice.toInt()}'),
-                            backgroundColor: Colors.orange[50],
+                          StatusPill(
+                            icon: Icons.confirmation_number_outlined,
+                            label: '¥${place.ticketPrice.toInt()}',
+                            color: AppColors.terracotta,
                           )
                         else
-                          Chip(
-                            label: const Text('Free Entry'),
-                            backgroundColor: Colors.green[50],
+                          const StatusPill(
+                            icon: Icons.check_circle_outline,
+                            label: 'Free Entry',
+                            color: AppColors.olive,
                           ),
                       ],
                     ),
@@ -61,33 +97,44 @@ class PlaceDetailScreen extends GetView<PlaceController> {
                       style: const TextStyle(fontSize: 15, height: 1.5),
                     ),
                     const SizedBox(height: 16),
-                    _InfoRow(icon: Icons.location_on, text: '${place.address}, ${place.city}'),
-                    _InfoRow(icon: Icons.people, text: 'Capacity: ${place.capacity}'),
+                    _InfoRow(
+                        icon: Icons.location_on,
+                        text: '${place.address}, ${place.city}'),
+                    _InfoRow(
+                        icon: Icons.people,
+                        text: 'Capacity: ${place.capacity}'),
                     if (place.openingHours.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      const Text('Opening Hours',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 6),
+                      const SectionTitle('Opening Hours'),
+                      const SizedBox(height: 10),
                       ...place.openingHours.entries.map(
                         (e) => Row(
                           children: [
-                            SizedBox(width: 40, child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.w500))),
-                            Text(e.value, style: TextStyle(color: Colors.grey[700])),
+                            SizedBox(
+                                width: 40,
+                                child: Text(e.key,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500))),
+                            Text(e.value,
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant)),
                           ],
                         ),
                       ),
                     ],
                     if (place.rules.isNotEmpty) ...[
                       const SizedBox(height: 16),
-                      const Text('Rules & Guidelines',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 6),
+                      const SectionTitle('Rules & Guidelines'),
+                      const SizedBox(height: 10),
                       ...place.rules.map(
                         (r) => Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Row(
                             children: [
-                              const Icon(Icons.warning_amber, size: 16, color: Colors.amber),
+                              const Icon(Icons.info_outline,
+                                  size: 16, color: AppColors.terracotta),
                               const SizedBox(width: 8),
                               Expanded(child: Text(r)),
                             ],
@@ -101,12 +148,14 @@ class PlaceDetailScreen extends GetView<PlaceController> {
                     if (place.reservationRequired || place.ticketRequired)
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () => Get.toNamed(Routes.CREATE_RESERVATION),
+                        child: FilledButton.icon(
+                          onPressed: () =>
+                              Get.toNamed(Routes.CREATE_RESERVATION),
                           icon: const Icon(Icons.calendar_today),
                           label: const Text('Make a Reservation'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.terracotta,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
                       ),
@@ -118,6 +167,11 @@ class PlaceDetailScreen extends GetView<PlaceController> {
         ),
       );
     });
+  }
+
+  Color _deepen(Color c) {
+    final hsl = HSLColor.fromColor(c);
+    return hsl.withLightness((hsl.lightness * 0.6).clamp(0.0, 1.0)).toColor();
   }
 
   IconData _categoryIcon(String category) {
@@ -149,9 +203,9 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
+          Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: TextStyle(color: Colors.grey[800]))),
+          Expanded(child: Text(text)),
         ],
       ),
     );
@@ -164,15 +218,22 @@ class _CrowdPredictionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: Colors.indigo[50],
+      color: scheme.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Crowd Prediction',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Row(
+              children: [
+                Icon(Icons.waves, color: scheme.primary),
+                const SizedBox(width: 8),
+                Text('Crowd Prediction',
+                    style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
             const SizedBox(height: 8),
             InkWell(
               onTap: () async {
@@ -185,9 +246,9 @@ class _CrowdPredictionCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         _formatDt(controller.predictionDateTime.value),
-                        style: const TextStyle(
+                        style: TextStyle(
                             decoration: TextDecoration.underline,
-                            color: Colors.indigo),
+                            color: scheme.primary),
                       ),
                     ],
                   )),
@@ -197,10 +258,10 @@ class _CrowdPredictionCard extends StatelessWidget {
               final pred = controller.crowdPrediction.value;
               if (pred == null) return const SizedBox.shrink();
               final color = pred.level == CrowdLevel.high
-                  ? Colors.red
+                  ? AppColors.bougainvillea
                   : pred.level == CrowdLevel.medium
-                      ? Colors.orange
-                      : Colors.green;
+                      ? AppColors.terracotta
+                      : AppColors.olive;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -211,18 +272,25 @@ class _CrowdPredictionCard extends StatelessWidget {
                       Text(
                         '${pred.levelLabel} (${pred.crowdScore}/100)',
                         style: TextStyle(
-                            color: color, fontWeight: FontWeight.bold, fontSize: 16),
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: pred.crowdScore / 100,
-                    color: color,
-                    backgroundColor: color.withOpacity(0.2),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      minHeight: 8,
+                      value: pred.crowdScore / 100,
+                      color: color,
+                      backgroundColor: color.withValues(alpha: 0.2),
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  Text(pred.explanation, style: TextStyle(color: Colors.grey[700])),
+                  Text(pred.explanation,
+                      style: TextStyle(color: scheme.onSurfaceVariant)),
                 ],
               );
             }),

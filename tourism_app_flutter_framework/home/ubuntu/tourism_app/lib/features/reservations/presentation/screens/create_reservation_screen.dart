@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/app/routes/app_pages.dart';
 import 'package:tourism_app/features/places/presentation/controllers/place_controller.dart';
@@ -28,9 +29,9 @@ class CreateReservationScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
-                color: Colors.blue[50],
+                color: Theme.of(context).colorScheme.primaryContainer,
                 child: ListTile(
-                  leading: const Icon(Icons.place, color: Colors.blue),
+                  leading: const Icon(Icons.place, color: AppColors.aegean),
                   title: Text(selectedPlace.name,
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(selectedPlace.city),
@@ -48,7 +49,7 @@ class CreateReservationScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(color: AppColors.driftwood),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -76,7 +77,8 @@ class CreateReservationScreen extends StatelessWidget {
                   ),
                   Obx(() => Text(
                         '${reservationCtrl.visitorCount.value}',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
                       )),
                   IconButton(
                     onPressed: reservationCtrl.incrementVisitors,
@@ -92,20 +94,21 @@ class CreateReservationScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Total Price',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         Text(
                           '¥${reservationCtrl.totalPrice.toInt()}',
                           style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.indigo),
+                              color: AppColors.aegean),
                         ),
                       ],
                     )),
                 const SizedBox(height: 4),
                 Text(
                   'Mock payment will be processed automatically',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  style: TextStyle(color: AppColors.driftwood, fontSize: 12),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -117,7 +120,9 @@ class CreateReservationScreen extends StatelessWidget {
                           ? null
                           : () async {
                               await reservationCtrl.createReservation();
-                              if (reservationCtrl.lastCreatedReservation.value != null) {
+                              if (reservationCtrl
+                                      .lastCreatedReservation.value !=
+                                  null) {
                                 Get.offNamed(Routes.RESERVATIONS);
                               }
                             },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/features/credits/presentation/controllers/credit_controller.dart';
 
@@ -47,7 +48,7 @@ class RedemptionScreen extends GetView<CreditController> {
                           Text(description),
                           Text('Cost: $cost Credits',
                               style: const TextStyle(
-                                  color: Colors.indigo,
+                                  color: AppColors.aegean,
                                   fontWeight: FontWeight.w600)),
                         ],
                       ),

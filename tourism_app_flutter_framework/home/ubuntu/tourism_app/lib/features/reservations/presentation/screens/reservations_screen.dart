@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_app/app/themes/app_colors.dart';
+import 'package:tourism_app/app/widgets/coastal_widgets.dart';
 import 'package:get/get.dart';
 import 'package:tourism_app/data/models/reservation_model.dart';
 import 'package:tourism_app/features/reservations/presentation/controllers/reservation_controller.dart';
@@ -27,15 +29,14 @@ class ReservationsScreen extends GetView<ReservationController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
-                Text('No reservations yet', style: TextStyle(color: Colors.grey)),
+                EmptyState(
+                    icon: Icons.event_outlined, message: 'No reservations yet'),
               ],
             ),
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           itemCount: controller.userReservations.length,
           itemBuilder: (ctx, i) =>
               _ReservationCard(reservation: controller.userReservations[i]),
@@ -66,27 +67,28 @@ class _ReservationCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     reservation.placeName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    reservation.status.replaceAll('_', ' ').capitalize!,
-                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
+                StatusPill(
+                  label: reservation.status.replaceAll('_', ' ').capitalize!,
+                  color: statusColor,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            _InfoRow(icon: Icons.calendar_today, text: _formatDt(reservation.selectedDateTime)),
-            _InfoRow(icon: Icons.people, text: '${reservation.visitorCount} visitor(s)'),
+            _InfoRow(
+                icon: Icons.calendar_today,
+                text: _formatDt(reservation.selectedDateTime)),
+            _InfoRow(
+                icon: Icons.people,
+                text: '${reservation.visitorCount} visitor(s)'),
             if (reservation.price > 0)
-              _InfoRow(icon: Icons.payment, text: '¥${reservation.price.toInt()} – ${reservation.paymentStatus}'),
+              _InfoRow(
+                  icon: Icons.payment,
+                  text:
+                      '¥${reservation.price.toInt()} – ${reservation.paymentStatus}'),
             const SizedBox(height: 12),
             if (reservation.status == ReservationStatus.confirmed ||
                 reservation.status == ReservationStatus.pendingPayment)
@@ -94,7 +96,8 @@ class _ReservationCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => _showQrCode(context, reservation.qrCodeData ?? ''),
+                      onPressed: () =>
+                          _showQrCode(context, reservation.qrCodeData ?? ''),
                       icon: const Icon(Icons.qr_code),
                       label: const Text('View QR'),
                     ),
@@ -103,10 +106,12 @@ class _ReservationCard extends StatelessWidget {
                   if (reservation.status != ReservationStatus.cancelled)
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => controller.cancelReservation(reservation.id),
+                        onPressed: () =>
+                            controller.cancelReservation(reservation.id),
                         icon: const Icon(Icons.cancel),
                         label: const Text('Cancel'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.bougainvillea),
                       ),
                     ),
                 ],
@@ -120,15 +125,15 @@ class _ReservationCard extends StatelessWidget {
   Color _statusColor(String status) {
     switch (status) {
       case ReservationStatus.confirmed:
-        return Colors.green;
+        return AppColors.olive;
       case ReservationStatus.pendingPayment:
-        return Colors.orange;
+        return AppColors.terracotta;
       case ReservationStatus.cancelled:
-        return Colors.red;
+        return AppColors.bougainvillea;
       case ReservationStatus.used:
-        return Colors.blue;
+        return AppColors.aegean;
       default:
-        return Colors.grey;
+        return AppColors.driftwood;
     }
   }
 
@@ -144,13 +149,15 @@ class _ReservationCard extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.qr_code_2, size: 120, color: Colors.black),
+            const Icon(Icons.qr_code_2, size: 120, color: AppColors.ink),
             const SizedBox(height: 8),
-            Text(data, style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+            Text(data,
+                style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
         ],
       ),
     );
@@ -168,9 +175,9 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: Colors.grey[600]),
+          Icon(icon, size: 14, color: AppColors.driftwood),
           const SizedBox(width: 8),
-          Text(text, style: TextStyle(color: Colors.grey[800])),
+          Text(text),
         ],
       ),
     );
